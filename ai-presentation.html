@@ -70,16 +70,16 @@
   }
   .slide-text {
     color: #fff;
-    font-size: clamp(22px, 6.5vw, 40px);
+    font-size: clamp(44px, 13vw, 80px);
     font-weight: 700;
     line-height: 1.6;
     letter-spacing: 0.04em;
     text-shadow: 0 2px 24px rgba(0,0,0,0.7);
     word-break: break-word;
   }
-  .slide-text .char { display: inline-block; opacity: 0; transform: translateY(12px); transition: opacity 0.35s ease, transform 0.35s ease; }
+  .slide-text .char { display: inline-block; opacity: 0; transform: translateY(24px); transition: opacity 0.35s ease, transform 0.35s ease; }
   .slide-text .char.show { opacity: 1; transform: translateY(0); }
-  .slide-text .line1 { margin-bottom: 0.15em; }
+  .slide-text .line1 { margin-bottom: 0.25em; }
   .slide-text .line2 { font-weight: 700; }
   .pagination {
     position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
@@ -146,13 +146,13 @@
   }
   @media (max-width: 480px) {
     .slide { padding: 50px 20px 30px; }
-    .slide-text { font-size: clamp(20px, 5.8vw, 30px); }
+    .slide-text { font-size: clamp(36px, 11vw, 56px); }
     .brand { padding: 18px 16px 12px; }
     .pagination { bottom: 44px; }
     .music-btn { top: 70px; right: 12px; width: 32px; height: 32px; font-size: 14px; }
   }
   @media (orientation: landscape) and (max-height: 500px) {
-    .slide-text { font-size: clamp(16px, 3.5vw, 24px); }
+    .slide-text { font-size: clamp(28px, 7vw, 44px); }
     .brand { padding: 10px 16px 8px; }
     .pagination { bottom: 20px; }
     .slide-content { min-height: 50vh; }
