@@ -1,0 +1,9 @@
+node_modules/
+frames/
+ai-presentation.mp4
+test.png
+test-puppeteer.js
+record.js
+package-lock.json
+package.json
+.DS_Store
