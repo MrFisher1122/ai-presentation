@@ -372,6 +372,8 @@
     }
   });
 
+  });
+
   // ===== Background Music via Web Audio API =====
   var audioCtx = null;
   var musicPlaying = false;
@@ -381,41 +383,35 @@
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // Frequency ratios for a rich ambient chord (Cmaj9)
-    var ratios = [1, 1.25, 1.5, 1.6667, 2, 2.5];
-    var baseFreq = 55; // A1
+    // Clear melodic pad - C major chord with extensions (C4, E4, G4, B4, D5)
+    var notes = [261.63, 329.63, 392.00, 493.88, 587.33];
 
-    // Master gain (volume)
     var masterGain = audioCtx.createGain();
     masterGain.gain.value = 0;
     masterGain.connect(audioCtx.destination);
 
-    // Low-pass filter for smoothness
+    // Gentle low-pass for warmth
     var filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 400;
-    filter.Q.value = 0.5;
+    filter.type = "lowpass";
+    filter.frequency.value = 3000;
+    filter.Q.value = 0.3;
     filter.connect(masterGain);
 
-    // Create layered oscillators for a chord pad
-    ratios.forEach(function(ratio, i) {
+    notes.forEach(function(freq, i) {
       var osc = audioCtx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = baseFreq * ratio;
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      osc.detune.value = (Math.random() - 0.5) * 4;
 
-      // Slight detune for richness
-      osc.detune.value = (Math.random() - 0.5) * 6;
-
-      // Per-oscillator gain
       var gain = audioCtx.createGain();
-      gain.gain.value = 0.06 / ratios.length;
+      gain.gain.value = 0.12;
 
-      // LFO for subtle movement
+      // Gentle tremolo for movement
       var lfo = audioCtx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 0.05 + Math.random() * 0.15;
+      lfo.type = "sine";
+      lfo.frequency.value = 0.08 + i * 0.04;
       var lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 0.02;
+      lfoGain.gain.value = 0.04;
       lfo.connect(lfoGain);
       lfoGain.connect(gain.gain);
       lfo.start();
@@ -427,56 +423,49 @@
       musicNodes.push(osc, gain, lfo, lfoGain);
     });
 
-    // Add a subtle sub-bass drone
+    // High shimmer layer for airy brightness
+    var shimmerOsc = audioCtx.createOscillator();
+    shimmerOsc.type = "sine";
+    shimmerOsc.frequency.value = 1174.66;
+    shimmerOsc.detune.value = 3;
+    var shimmerGain = audioCtx.createGain();
+    shimmerGain.gain.value = 0.05;
+    shimmerOsc.connect(shimmerGain);
+    shimmerGain.connect(filter);
+    shimmerOsc.start();
+    musicNodes.push(shimmerOsc, shimmerGain);
+
+    // Sub-bass drone (adds depth on capable speakers)
     var subOsc = audioCtx.createOscillator();
-    subOsc.type = 'sine';
-    subOsc.frequency.value = baseFreq / 2;
+    subOsc.type = "sine";
+    subOsc.frequency.value = 65.41;
     var subGain = audioCtx.createGain();
-    subGain.gain.value = 0.03;
+    subGain.gain.value = 0.06;
+    var subFilter = audioCtx.createBiquadFilter();
+    subFilter.type = "lowpass";
+    subFilter.frequency.value = 200;
     subOsc.connect(subGain);
-    subGain.connect(filter);
+    subGain.connect(subFilter);
+    subFilter.connect(masterGain);
     subOsc.start();
+    musicNodes.push(subOsc, subGain, subFilter);
 
-    musicNodes.push(subOsc, subGain);
-
-    // Add gentle high harmonics (air)
-    var noise = audioCtx.createOscillator();
-    noise.type = 'sawtooth';
-    noise.frequency.value = baseFreq * 8;
-    noise.detune.value = 20;
-    var noiseGain = audioCtx.createGain();
-    noiseGain.gain.value = 0.01;
-    var noiseFilter = audioCtx.createBiquadFilter();
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 2000;
-    noiseFilter.Q.value = 0.3;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(filter);
-    noise.start();
-
-    musicNodes.push(noise, noiseGain, noiseFilter);
-
-    // Fade in
-    masterGain.gain.setTargetAtTime(0.15, audioCtx.currentTime, 2);
-    musicNodes.push(masterGain, filter);
-
-    // Store for mute toggle
     musicNodes._masterGain = masterGain;
+    musicNodes._filter = filter;
   }
 
   function startMusic() {
     if (!audioCtx) {
       createAmbientMusic();
     }
-    if (audioCtx.state === 'suspended') {
+    if (audioCtx.state === "suspended") {
       audioCtx.resume();
     }
     musicPlaying = true;
     if (musicNodes._masterGain) {
-      musicNodes._masterGain.gain.setTargetAtTime(0.15, audioCtx.currentTime, 0.3);
+      musicNodes._masterGain.gain.setTargetAtTime(0.4, audioCtx.currentTime, 0.5);
     }
-    musicBtn.classList.remove('muted');
+    musicBtn.classList.remove("muted");
   }
 
   function stopMusic() {
@@ -484,7 +473,7 @@
       musicNodes._masterGain.gain.setTargetAtTime(0.001, audioCtx.currentTime, 0.3);
     }
     musicPlaying = false;
-    musicBtn.classList.add('muted');
+    musicBtn.classList.add("muted");
   }
 
   function toggleMusic() {
@@ -495,22 +484,22 @@
     }
   }
 
-  // Start music on first user interaction
   function initMusic() {
-    if (audioCtx && audioCtx.state === 'running') return;
+    if (audioCtx && audioCtx.state === "running") return;
     startMusic();
-    document.removeEventListener('click', initMusic);
-    document.removeEventListener('touchstart', initMusic);
-    document.removeEventListener('keydown', initMusic);
+    document.removeEventListener("click", initMusic);
+    document.removeEventListener("touchstart", initMusic);
+    document.removeEventListener("keydown", initMusic);
   }
 
-  document.addEventListener('click', initMusic, { once: true });
-  document.addEventListener('touchstart', initMusic, { once: true });
-  document.addEventListener('keydown', initMusic, { once: true });
+  document.addEventListener("click", initMusic, { once: true });
+  document.addEventListener("touchstart", initMusic, { once: true });
+  document.addEventListener("keydown", initMusic, { once: true });
 
-  musicBtn.addEventListener('click', function(e) {
+  musicBtn.addEventListener("click", function(e) {
     e.stopPropagation();
     toggleMusic();
+  });
   });
 
   // Init
