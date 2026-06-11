@@ -70,10 +70,11 @@
   }
   .slide-text {
     color: #fff;
-    font-size: clamp(44px, 13vw, 80px);
+    font-size: clamp(28px, 9vw, 54px);
     font-weight: 700;
     line-height: 1.6;
     letter-spacing: 0.04em;
+    overflow-wrap: break-word;
     text-shadow: 0 2px 24px rgba(0,0,0,0.7);
     word-break: break-word;
   }
@@ -146,13 +147,13 @@
   }
   @media (max-width: 480px) {
     .slide { padding: 50px 20px 30px; }
-    .slide-text { font-size: clamp(36px, 11vw, 56px); }
+    .slide-text { font-size: clamp(26px, 8vw, 42px); }
     .brand { padding: 18px 16px 12px; }
     .pagination { bottom: 44px; }
     .music-btn { top: 70px; right: 12px; width: 32px; height: 32px; font-size: 14px; }
   }
   @media (orientation: landscape) and (max-height: 500px) {
-    .slide-text { font-size: clamp(28px, 7vw, 44px); }
+    .slide-text { font-size: clamp(22px, 6vw, 36px); }
     .brand { padding: 10px 16px 8px; }
     .pagination { bottom: 20px; }
     .slide-content { min-height: 50vh; }
